@@ -45,7 +45,7 @@ def generar_datos_falsos(pais: str):
             f"🏠 *Dirección:* \n`{escape_markdown_v2(fake.address())}`\n"
             f"📧 *Correo:* `{escape_markdown_v2(fake.email())}`\n"
             f"📞 *Teléfono:* `{escape_markdown_v2(fake.phone_number())}`\n"
-            f"🎂 *Fecha de Nacimiento:* `{escape_markdown_v2(fake.date_of_birth(minimum_age=18, maximum_age=70))}`\n"
+            f"🎂 *Fecha de Nacimiento:* `{escape_markdown_v2(fake.date_of_birth(minimum_age=18, maximum_age=70).strftime('%Y-%m-%d'))}`\n"
         )
         return datos
     else:
