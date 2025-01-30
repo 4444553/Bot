@@ -38,7 +38,7 @@ def generar_datos_falsos(pais: str):
             f"📌 *Datos Generados para {pais.capitalize()}*\n"
             "------------------------------\n"
             f"👤 *Nombre:* `{fake.name()}`\n"
-            f"🏠 *Dirección:* \n`{fake.address()}`\n"
+            f"🏠 *Dirección:* \n`{fake.address().replace('-', r'\-')}`\n"  # Escapa guiones
             f"📧 *Correo:* `{fake.email()}`\n"
             f"📞 *Teléfono:* `{fake.phone_number()}`\n"
             f"🎂 *Fecha de Nacimiento:* `{fake.date_of_birth(minimum_age=18, maximum_age=70)}`\n"
