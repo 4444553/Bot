@@ -8,7 +8,7 @@ from faker import Faker
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
 
 # Token del bot de Telegram (reemplázalo con tu token real)
-TOKEN = "8090451672:AAGrJrUNfHfPjrcIQiJCo5pY0Lz5fgmkEdE"
+TOKEN = "7881869723:AAF3F6hrnN8aJMXpfC07g71ur8bIwSvYt6g"
 
 # Mapeo de nombres de países a códigos de Faker
 PAISES_FAKER = {
@@ -39,6 +39,11 @@ def generar_datos_falsos(pais: str):
     pais = pais.lower()
     if pais in PAISES_FAKER:
         fake = Faker(PAISES_FAKER[pais])
+        try:
+            codigo_postal = escape_markdown_v2(fake.postalcode())  # Usar postalcode() en lugar de zipcode()
+        except AttributeError:
+            codigo_postal = "No disponible"
+        
         datos = (
             f"📌 *Datos Generados para {pais.capitalize()}*\n"
             f"👤 *Nombre:* `{escape_markdown_v2(fake.name())}`\n"
@@ -46,6 +51,7 @@ def generar_datos_falsos(pais: str):
             f"📧 *Correo:* `{escape_markdown_v2(fake.email())}`\n"
             f"📞 *Teléfono:* `{escape_markdown_v2(fake.phone_number())}`\n"
             f"🎂 *Fecha de Nacimiento:* `{escape_markdown_v2(fake.date_of_birth(minimum_age=18, maximum_age=70).strftime('%Y-%m-%d'))}`\n"
+            f"📍 *Código Postal:* `{codigo_postal}`\n"  # Código Postal añadido
         )
         return datos
     else:
@@ -59,11 +65,19 @@ async def generate_fake_data(update: Update, context: CallbackContext) -> None:
     resultado = generar_datos_falsos(text)
     await update.message.reply_text(resultado, parse_mode="MarkdownV2")
 
+async def generate_fake_data_from_command(update: Update, context: CallbackContext) -> None:
+    # Verifica si el mensaje comienza con .tok o /tok
+    if update.message.text.lower().startswith((".tok", "/tok")):
+        pais = update.message.text[5:].strip().lower()  # Extrae el país después de .tok o /tok
+        resultado = generar_datos_falsos(pais)
+        await update.message.reply_text(resultado, parse_mode="MarkdownV2")
+
 def main():
     app = Application.builder().token(TOKEN).build()
     
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, generate_fake_data))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, generate_fake_data))  # Para mensajes normales
+    app.add_handler(MessageHandler(filters.TEXT & filters.COMMAND, generate_fake_data_from_command))  # Para comandos .tok y /tok
     
     print("🤖 Bot en marcha... Presiona Ctrl + C para detenerlo.")
     app.run_polling()
