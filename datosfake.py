@@ -3,12 +3,17 @@ from telegram.ext import Application, CommandHandler, MessageHandler, filters, C
 import logging
 import re
 from faker import Faker
+import os
+from dotenv import load_dotenv  # Nueva línea para cargar variables de entorno
+
+# Cargar las variables de entorno desde el archivo .env
+load_dotenv()
 
 # Configurar logging
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s", level=logging.INFO)
 
-# Token del bot de Telegram (reemplázalo con tu token real)
-TOKEN = "7858840568:AAHyJRlMuznwkXkQw-9Kn6MbPNjDvPqa4ow"
+# Obtener el token desde la variable de entorno
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
 # Mapeo de nombres de países a códigos de Faker
 PAISES_FAKER = {
@@ -25,7 +30,10 @@ PAISES_FAKER = {
     "arabia saudita": "ar_SA", "israel": "he_IL", "irán": "fa_IR", "kazajistán": "kk_KZ", "uzbekistán": "uz_UZ",
     "mongolia": "mn_MN", "nigeria": "en_NG", "kenia": "en_KE", "ghana": "en_GH", "tanzania": "sw_TZ",
     "argelia": "ar_DZ", "marruecos": "fr_MA", "senegal": "fr_SN", "etiopía": "am_ET", "el salvador": "es_SV",
-    "nicaragua": "es_NI", "puerto rico": "es_PR"
+    "nicaragua": "es_NI", "puerto rico": "es_PR", "jamaica": "en_JM", "haití": "ht_HT", "trinidad y tobago": "en_TT",
+    "belice": "en_BZ", "barbados": "en_BB", "guayana": "en_GY", "surinam": "nl_SR", "antigua y barbuda": "en_AG",
+    "bahamas": "en_BS", "bermudas": "en_BM", "belgica": "nl_BE", "panamá": "es_PA", "taiwán": "zh_TW",
+    "singapur": "en_SG", "nepal": "ne_NP", "mongolia": "mn_MN", "azerbaiyán": "az_AZ", "armenia": "hy_AM"
 }
 
 def escape_markdown_v2(text):
@@ -40,8 +48,10 @@ def generar_datos_falsos(pais: str):
         fake = Faker(PAISES_FAKER[pais])
         try:
             codigo_postal = escape_markdown_v2(fake.postcode())  # Se usa postcode() para mayor compatibilidad
+            estado = escape_markdown_v2(fake.state())  # Generamos el estado
         except AttributeError:
             codigo_postal = "No disponible"
+            estado = "No disponible"  # En caso de no poder generar el estado
 
         datos = (
             f"\U0001F4CC *DATOS PARA: {pais.capitalize()}* \n\n"
@@ -51,6 +61,7 @@ def generar_datos_falsos(pais: str):
             f"\U0001F4DE *TELÉFONO:* `{escape_markdown_v2(fake.phone_number())}`\n"
             f"\U0001F382 *NACIMIENTO:* `{escape_markdown_v2(fake.date_of_birth(minimum_age=18, maximum_age=70).strftime('%Y-%m-%d'))}`\n"
             f"\U0001F4CD *CÓDIGO POSTAL:* `{codigo_postal}`\n"
+            f"\U0001F3C1 *ESTADO:* `{estado}`\n"  # Estado agregado
         )
         return datos
     else:
